@@ -2,8 +2,6 @@
 
 FROM golang:1.25 AS build
 WORKDIR /src
-
-COPY --from=kanaka . /kanaka
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .

@@ -188,12 +188,6 @@ curl localhost:8080/api/stats/payments
 # at http://host.docker.internal:8227)
 ```
 
-> **Build note:** padma consumes the `kanaka` library via `replace => ../kanaka`,
-> so image builds need kanaka's source. Compose supplies it as a named build
-> context automatically; for a bare `docker build`, pass it explicitly:
-> `docker build --build-context kanaka=../kanaka -t padma .` (clone
-> [`kanaka`](https://github.com/Karnikara/kanaka) as a sibling directory).
-
 **Production** — point at external infra and pull a prebuilt image:
 
 ```bash

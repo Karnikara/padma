@@ -6,11 +6,6 @@ name: padma
 # indexer without any node; only merchant flows call the RPC. Runs with no .env
 # (${VAR:-default}); override anything via the environment or a .env file.
 
-x-build: &build
-  context: .
-  additional_contexts:
-    kanaka: ../kanaka
-
 x-appenv: &appenv
   DATABASE_URL: ${DATABASE_URL:-postgres://padma:padma@postgres:5432/padma?sslmode=disable}
   FIBER_RPC_ENDPOINT: ${FIBER_RPC_ENDPOINT:-http://host.docker.internal:8227}
@@ -35,7 +30,7 @@ services:
     ports: ["${POSTGRES_PORT:-5432}:5432"]
 
   migrate:
-    build: *build
+    build: .
     command: ["migrate"]
     environment: *appenv
     depends_on:
@@ -43,7 +38,7 @@ services:
         condition: service_healthy
 
   api:
-    build: *build
+    build: .
     command: ["api"]
     environment: *appenv
     ports: ["${HTTP_PORT:-8080}:8080"]
@@ -54,7 +49,7 @@ services:
         condition: service_completed_successfully
 
   dispatcher:
-    build: *build
+    build: .
     command: ["dispatcher"]
     environment: *appenv
     depends_on:
@@ -62,7 +57,7 @@ services:
         condition: service_completed_successfully
 
   indexer:
-    build: *build
+    build: .
     command: ["indexer"]
     environment: *appenv
     depends_on:

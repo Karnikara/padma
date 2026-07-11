@@ -16,11 +16,10 @@ short path; for the full config reference, subcommands, and modes see
 
 ## Clone & install
 
-`padma` builds against the [`kanaka`](library.md) library via a local
-`replace => ../kanaka`, so clone both as siblings:
+`padma` depends on the published [`kanaka`](library.md) module, so a plain clone
++ build just works (Go fetches `kanaka` for you):
 
 ```bash
-git clone https://github.com/Karnikara/kanaka
 git clone https://github.com/Karnikara/padma
 cd padma
 go build -o app ./cmd/app

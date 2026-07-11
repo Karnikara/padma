@@ -1,7 +1,7 @@
 # Contributing to padma
 
 Thanks for your interest in improving padma. This is the **service** that builds
-on the [`kanaka`](../kanaka) library. The bar is correctness, a clean layering,
+on the [`kanaka`](https://github.com/Karnikara/kanaka) library. The bar is correctness, a clean layering,
 and behavior proven by tests against a real database.
 
 ## Ground rules
