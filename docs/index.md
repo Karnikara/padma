@@ -1,4 +1,4 @@
-# karnikara
+# padma
 
 Indexer, webhook delivery, and merchant backend for the Nervos CKB Fiber Network.
 
@@ -12,7 +12,7 @@ stream.
 
 ## The answer
 
-`karnikara` fills the gap with a deliberate two-artifact split:
+The gap is filled by a deliberate two-artifact split:
 
 - **[`kanaka`](library.md)** — a reusable library: a typed RPC client, an event
   model, an ingest runner, and a webhook delivery engine. The machine.

@@ -1,7 +1,7 @@
 # Library: `kanaka`
 
 [`kanaka`](https://github.com/Karnikara/kanaka) is the reusable half of the
-`karnikara` split — a Go module that turns a Fiber node's raw RPC surface and
+kanaka/padma split — a Go module that turns a Fiber node's raw RPC surface and
 undocumented change stream into typed, composable building blocks. It has no
 database, no HTTP server, and no business rules: no schema to migrate, no
 policy to enforce. Just the machine that [`padma`](service.md) is built on.

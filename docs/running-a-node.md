@@ -1,8 +1,10 @@
 # Running a Fiber node
 
-padma's **indexer, query API, and webhooks need no node** — they run off the
-ingested/seeded event stream. Only the **merchant flows** (creating invoices,
-sending refunds) call a Fiber node's RPC.
+Running a Fiber node is **recommended** — it unlocks padma's merchant flows
+(creating invoices, sending refunds) and is the full setup. The [easy path](#easy-path-lazy-fnn)
+below spins one up in a single command. (padma's indexer, query API, and webhooks
+work without a node, off the ingested/seeded event stream — so you can start
+without one and add it when you need merchant flows.)
 
 There is **no public/shared Fiber RPC**: the RPC (`new_invoice`, `send_payment`)
 moves real funds, so every node keeps it private (bound to `127.0.0.1:8227` by

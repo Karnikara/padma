@@ -9,8 +9,10 @@ short path; for the full config reference, subcommands, and modes see
 - **Go 1.25+** — to build the `app` binary
 - **PostgreSQL 14+** — the read model + outbox live here
 - **Docker** *(optional)* — for the one-command stack below
-- **A Fiber node** *(optional)* — only merchant flows call it; queries, indexing,
-  and webhooks need none. See [Running a Fiber node](running-a-node.md).
+- **A Fiber node** *(recommended)* — for the full experience (merchant invoices +
+  refunds). The easy way is [`lazy-fnn`](https://github.com/Karnikara/lazy-fnn),
+  one command to a testnet node. Queries, indexing, and webhooks work without one.
+  See [Running a Fiber node](running-a-node.md).
 
 ## Clone & install
 

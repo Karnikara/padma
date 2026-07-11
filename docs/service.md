@@ -1,7 +1,7 @@
 # Service: `padma`
 
 [`padma`](https://github.com/Karnikara/padma) is the opinionated service half
-of the `karnikara` split. It imports [`kanaka`](library.md) for the plumbing
+of the kanaka/padma split. It imports [`kanaka`](library.md) for the plumbing
 and adds the policy: a Postgres schema, a query API, a webhook delivery
 outbox, and a merchant backend (orders, refunds, settlement, reconciliation,
 accounting exports).
