@@ -14,6 +14,28 @@ default) — the same model as a Lightning node. So you run your own node and po
     The **Fiber node** RPC (`:8227`) is the private one you run — it talks to CKB
     over the public CKB RPC.
 
+## Easy path — `lazy-fnn`
+
+For a dev/testnet node in one command, use
+[`lazy-fnn`](https://github.com/Karnikara/lazy-fnn) — it downloads `ckb-cli` +
+`fnn`, generates a key, writes a testnet config, and starts the node with RPC on
+`127.0.0.1:8227`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Karnikara/lazy-fnn/main/install.sh | bash
+```
+
+Then point padma at it:
+
+```bash
+FIBER_RPC_ENDPOINT=http://127.0.0.1:8227           # padma on the host
+FIBER_RPC_ENDPOINT=http://host.docker.internal:8227 # padma in docker-compose
+```
+
+macOS + Linux (amd64/arm64), no sudo. For merchant **refunds**, fund the node's
+address from the [faucet](https://faucet.nervos.org) and open a channel. Prefer to
+set it up by hand? Follow the official docs below.
+
 ## Run the node — official docs
 
 Follow the official quick-start; it stays current with node releases:
