@@ -34,6 +34,7 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - Getting Started: getting-started.md
   - Docs:
       - Architecture: architecture.md
       - Library (kanaka): library.md
@@ -41,4 +42,4 @@ nav:
       - Running a Fiber node: running-a-node.md
   - Reference:
       - API Reference: api.md
-  - Gates & Demo: gates.md
+  - Demo: gates.md
