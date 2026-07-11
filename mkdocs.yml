@@ -34,9 +34,11 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Architecture: architecture.md
-  - Library (kanaka): library.md
-  - Service (padma): service.md
-  - Running a Fiber node: running-a-node.md
-  - API Reference: api.md
+  - Docs:
+      - Architecture: architecture.md
+      - Library (kanaka): library.md
+      - Service (padma): service.md
+      - Running a Fiber node: running-a-node.md
+  - Reference:
+      - API Reference: api.md
   - Gates & Demo: gates.md
