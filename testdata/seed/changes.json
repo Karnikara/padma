@@ -1,0 +1,61 @@
+[
+  {
+    "seq": 1,
+    "event": {
+      "id": "evt_seed_paid_a",
+      "type": "invoice.paid",
+      "created_at": "2026-07-09T10:00:00Z",
+      "fiber_ref": "0xhashA",
+      "data": {
+        "payment_hash": "0xhashA",
+        "amount": "0x64",
+        "asset": "CKB",
+        "settled_at": "2026-07-09T10:00:00Z"
+      }
+    }
+  },
+  {
+    "seq": 2,
+    "event": {
+      "id": "evt_seed_recv_b",
+      "type": "payment.received",
+      "created_at": "2026-07-09T10:01:00Z",
+      "fiber_ref": "0xhashB",
+      "data": {
+        "payment_hash": "0xhashB",
+        "amount": "0xc8",
+        "asset": "CKB",
+        "payer_pubkey": "0xpayerX"
+      }
+    }
+  },
+  {
+    "seq": 3,
+    "event": {
+      "id": "evt_seed_chan_c",
+      "type": "channel.opened",
+      "created_at": "2026-07-09T10:02:00Z",
+      "fiber_ref": "0xchanC",
+      "data": {
+        "channel_id": "0xchanC",
+        "peer": "0xpeerY",
+        "capacity": "0x3e8"
+      }
+    }
+  },
+  {
+    "seq": 4,
+    "event": {
+      "id": "evt_seed_recv_d",
+      "type": "payment.received",
+      "created_at": "2026-07-09T10:03:00Z",
+      "fiber_ref": "0xhashD",
+      "data": {
+        "payment_hash": "0xhashD",
+        "amount": "0x1f4",
+        "asset": "CKB",
+        "payer_pubkey": "0xpayerZ"
+      }
+    }
+  }
+]

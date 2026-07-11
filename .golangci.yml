@@ -1,0 +1,47 @@
+# golangci-lint v2 configuration. Run with: make lint
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  # "standard" = errcheck, govet, ineffassign, staticcheck, unused.
+  default: standard
+  enable:
+    - revive       # style/lint rules incl. exported-symbol docs
+    - gocritic     # opinionated correctness/style diagnostics
+    - misspell     # commonly misspelled English in comments/strings
+    - unconvert    # redundant type conversions
+    - bodyclose    # response/body closed
+    - errorlint    # correct error wrapping & comparisons
+    - nakedret     # no naked returns in longer funcs
+    - unparam      # unused function parameters/results
+  settings:
+    misspell:
+      locale: US
+    revive:
+      rules:
+        - name: exported
+  exclusions:
+    generated: lax
+    rules:
+      # Tests favor brevity; don't demand error checks on fixture setup.
+      - path: _test\.go
+        linters:
+          - errcheck
+          - unparam
+          - gocritic
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/karnikara/padma
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
