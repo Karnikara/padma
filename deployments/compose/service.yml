@@ -1,0 +1,26 @@
+name: padma
+
+# Infra compose: Postgres only. padma calls an EXTERNAL Fiber node RPC (set
+# FIBER_RPC_ENDPOINT in app.yml). Mirror of deployments/k8s/service.yml.
+# Combine with app.yml under one project:
+#   docker compose -p padma \
+#     -f deployments/compose/service.yml -f deployments/compose/app.yml up
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-padma}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-padma}
+      POSTGRES_DB: ${POSTGRES_DB:-padma}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-padma}"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+    ports: ["${POSTGRES_PORT:-5432}:5432"]
+    volumes: ["padma-pg:/var/lib/postgresql/data"]
+    restart: unless-stopped
+
+volumes:
+  padma-pg:

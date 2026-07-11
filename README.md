@@ -5,7 +5,7 @@
 A Fiber node answers point queries and emits a raw, undocumented change stream —
 but it has no queryable history, no developer-friendly webhooks, and no merchant
 tooling. `padma` is the opinionated service that fills that gap: it imports the
-[`kanaka`](../kanaka) library for the plumbing and adds the **policy** — a
+[`kanaka`](https://github.com/Karnikara/kanaka) library for the plumbing and adds the **policy** — a
 Postgres schema, a query API, a webhook delivery outbox, and a merchant backend
 (orders, refunds, settlement, reconciliation, accounting exports).
 
@@ -21,11 +21,11 @@ the machine (typed RPC client, event model, ingest runner, webhook engine);
 
 ## What it does
 
-| # | Feature | Endpoints |
-| - | ------- | --------- |
-| **#11** | **Indexer + Query API** — project the node's events into Postgres; serve filtered, paginated history + aggregation the node can't do | `GET /v1/payments`, `/channels`, `/events`, `/stats/payments` |
-| **#10** | **Webhook delivery** — subscriptions, a signed at-least-once outbox with retry/backoff/dead-letter, manual replay | `POST/GET/DELETE /v1/webhooks`, `/test`, `/replay/{id}` |
-| **#3** | **Merchant backend** — orders backed by Fiber invoices, automatic payment matching, keysend refunds, per-asset settlement, reconciliation, CSV/XLSX export | `/v1/merchant/orders`, `/refund`, `/settlements`, `/reconciliation`, `/export` |
+| Feature | Endpoints |
+| ------- | --------- |
+| **Indexer + Query API** — project the node's events into Postgres; serve filtered, paginated history + aggregation the node can't do | `GET /api/payments`, `/channels`, `/events`, `/stats/payments` |
+| **Webhook delivery** — subscriptions, a signed at-least-once outbox with retry/backoff/dead-letter, manual replay | `POST/GET/DELETE /api/webhooks`, `/test`, `/replay/{id}` |
+| **Merchant backend** — orders backed by Fiber invoices, automatic payment matching, keysend refunds, per-asset settlement, reconciliation, CSV/XLSX export | `/api/merchant/orders`, `/refund`, `/settlements`, `/reconciliation`, `/export` |
 
 ## Requirements
 
@@ -56,9 +56,9 @@ go build -o app ./cmd/app
 | Command | Does |
 | ------- | ---- |
 | `app migrate` | apply database migrations, then exit |
-| `app indexer` | run the ingest runner + projector (#11) |
+| `app indexer` | run the ingest runner + projector |
 | `app api` | serve the query/webhook/merchant HTTP API |
-| `app dispatcher` | run the webhook delivery loop (#10) |
+| `app dispatcher` | run the webhook delivery loop |
 | `app merchant-key <name>` | provision a merchant, print its id + API key once |
 
 ## Configuration
@@ -84,10 +84,10 @@ may use `platform/*`).
 cmd/app/                     single multi-mode binary
 internal/
   platform/{config,db,httpx,auth,id,fiber}   infra: pool, migrations, Amount↔NUMERIC, auth, seam
-  indexer/                   #11 transactional-outbox projector + PostgresCheckpoint
-  query/                     #11 read repos + REST handlers (cursor pagination, filters, stats)
-  webhook/                   #10 PostgresDeliveryStore + subscription CRUD + dispatcher wiring
-  merchant/                  #3  orders / refunds / settlement / reconciliation / export
+  indexer/                   transactional-outbox projector + PostgresCheckpoint
+  query/                     read repos + REST handlers (cursor pagination, filters, stats)
+  webhook/                   PostgresDeliveryStore + subscription CRUD + dispatcher wiring
+  merchant/                  orders / refunds / settlement / reconciliation / export
   apiserver/                 chi router assembling the HTTP surface
 migrations/                  goose SQL (embedded), applied by `app migrate`
 ```
@@ -146,7 +146,7 @@ Everything downstream is built and tested against a fake source
 - Every gate verified end-to-end against a live Postgres and the HTTP API.
 
 Full results, coverage, and the end-to-end command/response log are in
-[`../docs/TEST-REPORT.md`](../docs/TEST-REPORT.md).
+[`TEST-REPORT.md`](TEST-REPORT.md).
 
 ## Development
 
@@ -164,6 +164,46 @@ go test -race ./...
 Built test-first (red → green → refactor). New behavior comes with a failing test
 first — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Deployment
+
+```
+docker-compose.yml            seeded dev stack: postgres + all app modes
+deployments/compose/service.yml infra compose (postgres)
+deployments/compose/app.yml   app compose (app only; external Postgres + Fiber node)
+deployments/k8s/              Kubernetes manifests — service.yml (infra) + app.yml (workloads)
+Dockerfile                    multi-stage → scratch (static binary + CA certs, nonroot)
+.env.example                  every config variable with defaults
+```
+
+padma is a **client of a Fiber node** — it does not run one. Point
+`FIBER_RPC_ENDPOINT` at a node you run (the standard `fnn` setup); merchant flows
+call it. Queries and webhooks need no node — they run off the seeded indexer.
+
+**Local stack** — Postgres + migrations + seeded indexer + API:
+
+```bash
+docker compose up --build      # or: docker-compose up --build
+curl localhost:8080/api/stats/payments
+# merchant flows: set FIBER_RPC_ENDPOINT (default reaches a node on the host
+# at http://host.docker.internal:8227)
+```
+
+> **Build note:** padma consumes the `kanaka` library via `replace => ../kanaka`,
+> so image builds need kanaka's source. Compose supplies it as a named build
+> context automatically; for a bare `docker build`, pass it explicitly:
+> `docker build --build-context kanaka=../kanaka -t padma .` (clone
+> [`kanaka`](https://github.com/Karnikara/kanaka) as a sibling directory).
+
+**Production** — point at external infra and pull a prebuilt image:
+
+```bash
+PADMA_IMAGE=ghcr.io/karnikara/padma:latest DATABASE_URL=... FIBER_RPC_ENDPOINT=... \
+  docker compose -f deployments/compose/app.yml up
+```
+
+**Kubernetes** — `kubectl apply -f deployments/k8s/service.yml` then
+`-f deployments/k8s/app.yml`.
+
 ## Contributing
 
 Issues and PRs welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and abide by
@@ -171,4 +211,4 @@ our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
-[MIT](../kanaka/LICENSE) © savioruz
+[MIT](LICENSE) © savioruz

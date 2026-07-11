@@ -1,0 +1,42 @@
+site_name: karnikara
+site_description: Indexer, webhook delivery, and merchant backend for the Nervos CKB Fiber Network
+site_url: https://karnikara.github.io/padma/
+repo_url: https://github.com/Karnikara/padma
+repo_name: Karnikara/padma
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle: { icon: material/weather-night, name: Switch to dark mode }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle: { icon: material/weather-sunny, name: Switch to light mode }
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Library (kanaka): library.md
+  - Service (padma): service.md
+  - Running a Fiber node: running-a-node.md
+  - API Reference: api.md
+  - Gates & Demo: gates.md

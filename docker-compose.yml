@@ -1,0 +1,70 @@
+name: padma
+
+# Seeded dev stack: postgres + migrate + the three app modes. padma is a client
+# of an EXTERNAL Fiber node — set FIBER_RPC_ENDPOINT to your node's RPC (default
+# assumes one on the host at :8227). Queries and webhooks work from the seeded
+# indexer without any node; only merchant flows call the RPC. Runs with no .env
+# (${VAR:-default}); override anything via the environment or a .env file.
+
+x-build: &build
+  context: .
+  additional_contexts:
+    kanaka: ../kanaka
+
+x-appenv: &appenv
+  DATABASE_URL: ${DATABASE_URL:-postgres://padma:padma@postgres:5432/padma?sslmode=disable}
+  FIBER_RPC_ENDPOINT: ${FIBER_RPC_ENDPOINT:-http://host.docker.internal:8227}
+  INGEST_SOURCE: ${INGEST_SOURCE:-fake}
+  SEED_FILE: ${SEED_FILE:-/seed/changes.json}
+  WEBHOOK_MAX_ATTEMPTS: ${WEBHOOK_MAX_ATTEMPTS:-8}
+  WEBHOOK_WORKERS: ${WEBHOOK_WORKERS:-4}
+  HTTP_ADDR: ${HTTP_ADDR:-:8080}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-padma}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-padma}
+      POSTGRES_DB: ${POSTGRES_DB:-padma}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-padma}"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+    ports: ["${POSTGRES_PORT:-5432}:5432"]
+
+  migrate:
+    build: *build
+    command: ["migrate"]
+    environment: *appenv
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build: *build
+    command: ["api"]
+    environment: *appenv
+    ports: ["${HTTP_PORT:-8080}:8080"]
+    # so FIBER_RPC_ENDPOINT=host.docker.internal reaches a node on the host (Linux too)
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  dispatcher:
+    build: *build
+    command: ["dispatcher"]
+    environment: *appenv
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  indexer:
+    build: *build
+    command: ["indexer"]
+    environment: *appenv
+    depends_on:
+      migrate:
+        condition: service_completed_successfully

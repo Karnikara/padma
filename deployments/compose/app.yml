@@ -1,0 +1,35 @@
+name: padma-app
+
+x-appenv: &appenv
+  DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+  FIBER_RPC_ENDPOINT: ${FIBER_RPC_ENDPOINT:?FIBER_RPC_ENDPOINT is required}
+  FIBER_BISCUIT_TOKEN: ${FIBER_BISCUIT_TOKEN:-}
+  INGEST_SOURCE: ${INGEST_SOURCE:-polling}
+  WEBHOOK_MAX_ATTEMPTS: ${WEBHOOK_MAX_ATTEMPTS:-8}
+  WEBHOOK_WORKERS: ${WEBHOOK_WORKERS:-4}
+  HTTP_ADDR: ${HTTP_ADDR:-:8080}
+
+services:
+  migrate:
+    image: ${PADMA_IMAGE:-ghcr.io/karnikara/padma:latest}
+    command: ["migrate"]
+    environment: *appenv
+
+  api:
+    image: ${PADMA_IMAGE:-ghcr.io/karnikara/padma:latest}
+    command: ["api"]
+    environment: *appenv
+    ports: ["${HTTP_PORT:-8080}:8080"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  dispatcher:
+    image: ${PADMA_IMAGE:-ghcr.io/karnikara/padma:latest}
+    command: ["dispatcher"]
+    environment: *appenv
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped

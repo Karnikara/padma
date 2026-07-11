@@ -29,7 +29,7 @@ func Router(pool *pgxpool.Pool, fiber merchant.FiberRPC) http.Handler {
 	queryH := query.NewHandler(query.NewRepo(pool))
 	webhookH := webhook.NewEndpointHandler(pool)
 	merchantH := merchant.NewHandler(merchant.NewService(pool, fiber), pool)
-	r.Route("/v1", func(r chi.Router) {
+	r.Route("/api", func(r chi.Router) {
 		queryH.Routes(r)
 		webhookH.Routes(r)
 		merchantH.Routes(r)

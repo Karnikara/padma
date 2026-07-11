@@ -1,0 +1,109 @@
+# padma workloads. Apply after service.yml. Image built from ./Dockerfile:
+#   docker build -t ghcr.io/karnikara/padma:latest .
+# then push it and update the `image:` fields (or your registry).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: padma-config
+data:
+  # External Fiber node RPC — set to your node's reachable address.
+  FIBER_RPC_ENDPOINT: http://your-fiber-node:8227
+  INGEST_SOURCE: fake
+  SEED_FILE: /seed/changes.json
+  WEBHOOK_MAX_ATTEMPTS: "8"
+  WEBHOOK_WORKERS: "4"
+  HTTP_ADDR: ":8080"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: padma-secret
+stringData:
+  DATABASE_URL: postgres://padma:padma@postgres:5432/padma?sslmode=disable
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: padma-migrate
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: ghcr.io/karnikara/padma:latest
+          args: ["migrate"]
+          envFrom:
+            - configMapRef: { name: padma-config }
+            - secretRef: { name: padma-secret }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: padma-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: padma-api }
+  template:
+    metadata:
+      labels: { app: padma-api }
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/karnikara/padma:latest
+          args: ["api"]
+          envFrom:
+            - configMapRef: { name: padma-config }
+            - secretRef: { name: padma-secret }
+          ports: [{ containerPort: 8080 }]
+          readinessProbe:
+            httpGet: { path: /healthz, port: 8080 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: padma-api
+spec:
+  selector: { app: padma-api }
+  ports: [{ port: 80, targetPort: 8080 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: padma-dispatcher
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: padma-dispatcher }
+  template:
+    metadata:
+      labels: { app: padma-dispatcher }
+    spec:
+      containers:
+        - name: dispatcher
+          image: ghcr.io/karnikara/padma:latest
+          args: ["dispatcher"]
+          envFrom:
+            - configMapRef: { name: padma-config }
+            - secretRef: { name: padma-secret }
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: padma-indexer
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: indexer
+          image: ghcr.io/karnikara/padma:latest
+          args: ["indexer"]
+          envFrom:
+            - configMapRef: { name: padma-config }
+            - secretRef: { name: padma-secret }
